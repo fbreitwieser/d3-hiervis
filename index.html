@@ -78,7 +78,7 @@ Filter: <input type="text" name="filter" id="filter" oninput="filterChanged(this
             treeColors: null});
         chart.draw("vertical sankey");
      });
-        }
+    }
     }
     
   d3.selectAll('button.vis').on('click', function(){
@@ -88,7 +88,7 @@ Filter: <input type="text" name="filter" id="filter" oninput="filterChanged(this
 
   d3.csv("d3.csv", function(error, data) {
     chart = hiervis(d3.select("svg#h1"), data, {valueField: "size", stat: "sum", pathField: "path", pathSep: "/"});
-    chart.draw("cluster");
+    chart.draw("vertical sankey");
   });
 
   function uploadFiles(files) {

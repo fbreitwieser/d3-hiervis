@@ -280,7 +280,7 @@ class HierVis {
 .slice text { pointer-events: none; /*dominant-baseline: middle;*/ text-anchor: middle; }
 .slice .text-countour { fill: none; stroke: #fff; stroke-width: 5; stroke-linejoin: round; }
 text { padding: 5px; font: 12px sans-serif; }
-g.partition g rect { stroke: #fff; }
+g.partition g rect { stroke: #fff; opacity: .5; }
 g.sankey g path { opacity: .5; }
 g.rects g rect { stroke: #fff; }
 g.links path { stroke: #fff; opacity: 0.7; }
@@ -404,6 +404,9 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
           y0 = horizontal? "x0" : "y0",
           y1 = horizontal? "x1" : "y1";
     
+    const xx = horizontal? "y" : "x";
+    const yy = horizontal? "x" : "y";
+      
     var nodes;
 
     if (is_treemap) {
@@ -433,23 +436,22 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       if (horizontal) {
         partition.size([this.height, this.width * scale_factor])
       } else {
-        partition.size([this.width * scale_factor, this.height])
+        partition.size([this.width, this.height * scale_factor])
       }
       
-
       partition(this.root);
 
       if (is_sankey) {
           var max_fact = 1,
               max_dy1 = 0;
           
-          function padNodes(d, delta) {
+          function padNodes(d, delta, y0, y1) {
               var y1_b4 = d[y1];
               if (d.children) {
                   var delta_start = delta;
                   var children_max_y1 = 0
                   d.children.forEach((e, i) => {
-                      delta = padNodes(e, delta)
+                      delta = padNodes(e, delta, y0, y1)
                       if (e[y1] > children_max_y1) {
                           children_max_y1 = e[y1]
                       }
@@ -482,12 +484,12 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
               }
               return delta;
           }
-          padNodes(this.root, 0)
+          padNodes(this.root, 0, "x0", "x1")
 
           // Scale the sizes to fit the window
           this.root.each(d => {
-              d[y0] /= max_fact
-              d[y1] /= max_fact
+              d["x0"] /= max_fact
+              d["x1"] /= max_fact
               d.children_min_y0 /= max_fact
               d.children_max_y1 /= max_fact
           })
@@ -572,11 +574,19 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
            .attr("height", d => y(d[y1]) - y(d[y0]))
     };
     
-    var sankey_clip_rects = function(selection, x, y) {
+    var sankey_clip_rects = function(selection, x, y) { 
+       if (horizontal) {
        selection.attr("x", d => x(d[x0]) )
            .attr("y", d => y(d.children_min_y0 - sankeyNodeDist/4))
            .attr("width", d => x(d[x1]) - x(d[x0]))
            .attr("height", d => y(d.children_max_y1 + sankeyNodeDist/2) - y(d.children_min_y0))
+       } else {
+       selection
+           .attr("x", d => x(d.children_min_y0 - sankeyNodeDist/4))
+           .attr("y", d => y(d[y0]) )
+           .attr("height", d => y(d[y1]) - y(d[y0]))
+           .attr("width", d => x(d.children_max_y1 + sankeyNodeDist/2) - x(d.children_min_y0))           
+       }
     };
 
     var sankey_rects = function(selection, x, y) {
@@ -659,6 +669,12 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     
      if (!(is_sankey && horizontal))
         text.attr("dy", "1em");
+      
+/*    if (is_sankey) {
+        text
+            .filter(d => d.children_max_y1 - d.children_min_y0 < 10)
+            .attr("visibility", "hidden")
+    }*/
         
     if (this.opts.showNumbers)
         var tspan = text.append("tspan")
@@ -669,14 +685,11 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     text.append('title')
            .text(d => d.data[this.opts.nameField] + '\n' + this.formatNumber(d.value));
 
-
     rect.attr('fill', d => this._color(is_treemap && !this.opts.treeColors? d.parent : d))
         .style("cursor", "pointer")
         .on("click", clicked)
         .append('title')
         .text(d => d.data[this.opts.nameField] + '\n' + this.formatNumber(d.value));
-
-
 
     function clicked(d) {
       if (horizontal) {
@@ -684,6 +697,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         if (d.parent && d[x0] - d.parent[x0] < min_x) {
           min_x = d[x0] - d.parent[x0];
         }
+
         x.domain([d[x0], self.width]).range([min_x, self.width]);
         if (is_sankey) {
             y.domain([d.children_min_y0, d.children_max_y1])
@@ -695,13 +709,14 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         if (d.parent && d[y0] - d.parent[y0] < min_y) {
           min_y = d[y0] - d.parent[y0];
         }
-        x.domain([d[x0], d[x1]]);
+        
+        if (is_sankey && !horizontal) {
+            x.domain([d.children_min_y0, d.children_max_y1])
+        } else {
+            x.domain([d[x0], d[x1]]);        
+        }
         y.domain([d[y0], self.height]).range([min_y, self.height]);
       }
-        console.log("clicked")
-        console.log(x)
-        console.log(y)
-
 
       if (is_sankey) {
           clip_rect.transition()
@@ -723,7 +738,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
        text.transition()
            .duration(self.opts.transitionDuration)
            .call(set_texts, x, y)
-
+        
       if (self.opts.showNumbers)
           tspan.transition()
                .duration(self.opts.transitionDuration)
