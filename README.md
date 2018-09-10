@@ -6,6 +6,8 @@ This module is based on [d3 hierarchy](https://github.com/d3/d3-hierarchy) and m
 
 ![ezgif-5-4e1ea53a07](https://user-images.githubusercontent.com/516060/45301339-c2e00200-b4de-11e8-9a54-3cac7f052335.gif)
 
+Demo at https://bl.ocks.org/fbreitwieser/31e4be931541c74732dd6807ccb98daf
+
 ## Installing
 
 If you use NPM, `npm install d3-hiervis`. Otherwise, download the [latest release](https://github.com/fbreitwieser/d3-hiervis/releases/latest).
