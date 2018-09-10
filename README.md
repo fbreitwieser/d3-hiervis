@@ -16,6 +16,13 @@ If you use NPM, `npm install d3-hiervis`. Otherwise, download the [latest releas
 
 API DOCUMENTATION HERE. Use bold for symbols (such as constructor and method names) and italics for instances. See the other D3 modules for examples.
 
+## Options
+Data import:
+ - `pathField`: e.g. `"path"`
+ - `valueField`: e.g. `"size"`
+ - `stat`: e.g. `"sum"`
+ - `pathSep`: e.g. `"/"`
+
 ### Partition and Icicle (vertical partition)
 Based on Mike Bostock's [Zoomable Icicle](https://bl.ocks.org/mbostock/1005873)
 
