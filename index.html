@@ -86,7 +86,7 @@ Filter: <input type="text" name="filter" id="filter" oninput="filterChanged(this
     chart.draw(vis);
   });
 
-  d3.csv("d3.csv", function(error, data) {
+  d3.csv("data/d3.csv", function(error, data) {
     chart = hiervis(d3.select("svg#h1"), data, {valueField: "size", stat: "sum", pathField: "path", pathSep: "/"});
     chart.draw("vertical sankey");
   });
