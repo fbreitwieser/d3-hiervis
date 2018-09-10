@@ -16,4 +16,12 @@ If you use NPM, `npm install d3-hiervis`. Otherwise, download the [latest releas
 
 API DOCUMENTATION HERE. Use bold for symbols (such as constructor and method names) and italics for instances. See the other D3 modules for examples.
 
+### Sunburst
+Based on Vasco Asturiano [Zoomable Sunburst with Labels](https://bl.ocks.org/vasturiano/12da9071095fbd4df434e60d52d2d58d and http://tributary.io/inlet/4127332/)
+
+### Sankey
+based on timelyportfolio's interactive [parttree](https://bl.ocks.org/timelyportfolio/05a607c1730f717dc66b6c6db36a9f9f) and https://bl.ocks.org/timelyportfolio/9a7aa89d3c18f5a436ae50040191d882 .
+
+
 <a href="#hiervis" name="hiervis">#</a> <b>hiervis</b>()
+
