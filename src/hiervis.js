@@ -22,10 +22,10 @@ function setData(data, opts) {
         if (! data[1].taxName) {
             throw new Error("Doesn't seem to be a KrakenHLL report - required columns are not present");
         }
-        
+
         data.forEach(d => {
             d.depth = (d.taxName.search(/\S/))/2;
-            if (d.depth === -1) 
+            if (d.depth === -1)
                 d.depth = 0;
             d.name = d.taxName.replace(/^\s*/, "");
             d.name = d.name.replace(/\|/g,"_")
@@ -68,7 +68,7 @@ function setData(data, opts) {
             var pos = d[opts.pathField].lastIndexOf(opts.pathSep);
             return d[opts.pathField].substring(0, pos);
         })(data);
-        
+
     } else if (opts.parentField) {
         root = d3.stratify()
                      .id(d => d[opts.nameField])
@@ -76,20 +76,20 @@ function setData(data, opts) {
     } else {
         root = d3.hierarchy(data);
     }
-    
+
     if (opts.simplifyPath) {
         var removeUselessNode = function(node, negative_depth) {
             node.depth -= negative_depth;
             if (!node.children) { return; }
-            if (node.parent && 
+            if (node.parent &&
                 node.children.length == 1 &&
                 node.parent.children.length == 1 &&
                 node.value == node.parent.value) {
-                
+
                 node.children[0].parent = node.parent;
                 node.parent.children[0] = node.children[0];
                 negative_depth++
-                node.depth -= 1; 
+                node.depth -= 1;
             }
             var max_depth = node.depth;
             node.children.forEach(d => {
@@ -104,7 +104,7 @@ function setData(data, opts) {
         // TODO: Fix height
         console.log(root)
     }
-    
+
     if (opts.treeColors) {
         var tcol = TreeColors(opts.treeColors);
         //tcol.luminanceDelta = -20;
@@ -268,7 +268,7 @@ class HierVis {
     this.width = boundingBox.width;
     this.height = boundingBox.height;
     rectBB.remove();
-    this.maxRadius = Math.min(this.width, this.height)/2 -5;
+    this.maxRadius = Math.min(this.width, this.height)/3;
     this.svg.selectAll("*").remove();
     this.svg.attr('viewBox', null);
 
@@ -398,15 +398,15 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     const sankeyNodeHeight = is_sankey && !horizontal? 10 : 0;
     const sankeyNodeDist = 2;
     const textPadding = 1;
-      
+
     const x0 = horizontal? "y0" : "x0",
           x1 = horizontal? "y1" : "x1",
           y0 = horizontal? "x0" : "y0",
           y1 = horizontal? "x1" : "y1";
-    
+
     const xx = horizontal? "y" : "x";
     const yy = horizontal? "x" : "y";
-      
+
     var nodes;
 
     if (is_treemap) {
@@ -421,7 +421,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       var partition = d3.partition()
                         .padding(0)
                         .round(false);
-      
+
       var scale_factor = 1;
       if (is_sankey) {
           var max_depth = 1;
@@ -438,13 +438,13 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       } else {
         partition.size([this.width, this.height * scale_factor])
       }
-      
+
       partition(this.root);
 
       if (is_sankey) {
           var max_fact = 1,
               max_dy1 = 0;
-          
+
           function padNodes(d, delta, y0, y1) {
               var y1_b4 = d[y1];
               if (d.children) {
@@ -457,11 +457,11 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
                       }
                       delta = delta + sankeyNodeDist;
                   })
-                                
-                  // Save the minimum y0 and maximum y1 for zooming purposes 
+
+                  // Save the minimum y0 and maximum y1 for zooming purposes
                   d.children_min_y0 = d[y0] + delta_start
                   d.children_max_y1 = Math.max(d[y1] + delta_start, children_max_y1)
-              
+
                   // Set parent at the middle
                   var shift_delta = (delta_start + delta)/2
                   if (children_max_y1 > d[y1] + delta_start) {
@@ -476,11 +476,11 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
                   d[y0] += delta
                   d[y1] += delta
                   d.children_min_y0 = d[y0]
-                  d.children_max_y1 = d[y1]                  
+                  d.children_max_y1 = d[y1]
               }
               if (d[y1] > max_dy1) {
                       max_dy1 = d[y1]
-                      max_fact = max_dy1 / y1_b4;              
+                      max_fact = max_dy1 / y1_b4;
               }
               return delta;
           }
@@ -515,7 +515,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
             d.parent.children_y0s = (d.parent.children_y0s || 0) + d.h
           }
         })
-          
+
       }
     }
 
@@ -548,7 +548,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
            .attr("y", d => y(d[y0]) + textPadding)
         }
     };
-        
+
     var set_tspans = function(selection, x, y) {
         if (is_sankey) {
             selection.attr("x", d => !horizontal? x((d[x0]+d[x1])/2)  : x(d[x0]) + sankeyNodeWidth + textPadding )
@@ -556,7 +556,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
             selection.attr("x", d => x(d[x0]) + textPadding )
         }
     };
-    
+
     var rects = function(selection, x, y) {
         console.log(x)
         console.log(y)
@@ -566,15 +566,15 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
             partition_rects(selection, x, y)
         }
     };
-    
+
     var partition_rects = function(selection, x, y) {
        selection.attr("x", d => x(d[x0]) )
            .attr("y", d => y(d[y0]) )
            .attr("width", d => x(d[x1]) - x(d[x0]))
            .attr("height", d => y(d[y1]) - y(d[y0]))
     };
-    
-    var sankey_clip_rects = function(selection, x, y) { 
+
+    var sankey_clip_rects = function(selection, x, y) {
        if (horizontal) {
        selection.attr("x", d => x(d[x0]) )
            .attr("y", d => y(d.children_min_y0 - sankeyNodeDist/4))
@@ -585,7 +585,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
            .attr("x", d => x(d.children_min_y0 - sankeyNodeDist/4))
            .attr("y", d => y(d[y0]) )
            .attr("height", d => y(d[y1]) - y(d[y0]))
-           .attr("width", d => x(d.children_max_y1 + sankeyNodeDist/2) - x(d.children_min_y0))           
+           .attr("width", d => x(d.children_max_y1 + sankeyNodeDist/2) - x(d.children_min_y0))
        }
     };
 
@@ -603,7 +603,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
               .attr("y", d => horizontal? Math.max(0, (self.height - y(d[y1]) + y(d[y0]))/2) : 0)
     }
 
-    var links, clip_rect, rect, text; 
+    var links, clip_rect, rect, text;
 
     function horizontal_links(selection, x, y) {
       var lh = d3.linkHorizontal();
@@ -642,7 +642,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
           .attr("id", (d, i) => "clip-" + i + self.ID)
           .append("rect")
           .call(sankey_clip_rects, x => x, y => y);
-        
+
       // add Sankey rects
       rect = icicle.append("rect")
                    .call(sankey_rects, x => x, y => y);
@@ -655,33 +655,33 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       rect = icicle.append("rect")
                .attr("id", (_, i) => "rect-" + i + self.ID)
                .call(rects, x => x, y => y)
-      
+
       icicle.append("clipPath")
           .attr("id", (d, i) => "clip-" + i + self.ID)
           .append("use")
           .attr("xlink:href", (_, i) => "#rect-" + i + self.ID);
     }
-        
+
     text = texts.attr("clip-path", (_, i) => "url(#clip-" + i + self.ID + ")")
                 .call(set_texts, x => x, y => y)
                 .on("click", clicked)
                 .text(d => d.data[this.opts.nameField]);
-    
+
      if (!(is_sankey && horizontal))
         text.attr("dy", "1em");
-      
+
 /*    if (is_sankey) {
         text
             .filter(d => d.children_max_y1 - d.children_min_y0 < 10)
             .attr("visibility", "hidden")
     }*/
-        
+
     if (this.opts.showNumbers)
         var tspan = text.append("tspan")
             .attr("dy", "1em")
             .call(set_tspans, x => x, y => y)
             .text(d => this.formatCircleNumber(d.value));
-        
+
     text.append('title')
            .text(d => d.data[this.opts.nameField] + '\n' + this.formatNumber(d.value));
 
@@ -709,11 +709,11 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         if (d.parent && d[y0] - d.parent[y0] < min_y) {
           min_y = d[y0] - d.parent[y0];
         }
-        
+
         if (is_sankey && !horizontal) {
             x.domain([d.children_min_y0, d.children_max_y1])
         } else {
-            x.domain([d[x0], d[x1]]);        
+            x.domain([d[x0], d[x1]]);
         }
         y.domain([d[y0], self.height]).range([min_y, self.height]);
       }
@@ -729,7 +729,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
                 .filter(d1 => d1.depth <= d.depth)
                 .attr("visibility", "hidden")
       }
-    
+
        rect.transition()
               .duration(self.opts.transitionDuration)
               .call(rects, x, y)
@@ -738,7 +738,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
        text.transition()
            .duration(self.opts.transitionDuration)
            .call(set_texts, x, y)
-        
+
       if (self.opts.showNumbers)
           tspan.transition()
                .duration(self.opts.transitionDuration)
@@ -789,7 +789,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     var nodes = this.root.descendants();
 
     this.svg.attr('viewBox', `${-this.width / 2} ${-this.height / 2} ${this.width} ${this.height}`);
-    this.svg.on('click', () => focusOn()); // Reset zoom on canvas click
+    this.svg.on('click', () => sankeyClicked()); // Reset zoom on canvas click
     const x = d3.scaleLinear()
                 .range([0, 2 * Math.PI])
                 .clamp(true);
@@ -824,7 +824,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
                           .append('g').attr('class', 'slice ' + self.ID)
                           .on('click', d => {
                             d3.event.stopPropagation();
-                            focusOn(d);
+                            sankeyClicked(d);
                       });
 
     newSlice.append('title')
@@ -883,9 +883,10 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     }
 
 
-    function focusOn(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
+    function sankeyClicked(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
         // Reset to top-level if no data point specified
-
+      if (!d.children)
+        return;
       const transition = self.svg.transition()
                             .duration(self.opts.transitionDuration)
                             .tween('scale', () => {
@@ -930,5 +931,5 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       return d3.rgb(colorScale(d.parent.data.name)).brighter(d.depth/5);
     } */
   }
-
 }
+
