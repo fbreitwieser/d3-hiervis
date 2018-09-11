@@ -48,3 +48,8 @@ based on timelyportfolio's interactive [parttree](http://www.jsinr.me/2017/11/13
 
 <a href="#hiervis" name="hiervis">#</a> <b>hiervis</b>()
 
+## Planned features (contributions are highly welcome!)
+
+- Add a dropdown menu in the SVG to change visualizations
+- When changing visualizations, transform rather than replace the nodes
+
