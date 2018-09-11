@@ -31,11 +31,10 @@ API DOCUMENTATION HERE. Use bold for symbols (such as constructor and method nam
 
 ## Options
 Data import:
- - `pathField`: e.g. `"path"`
- - `valueField`: e.g. `"size"`
- - `stat`: e.g. `"sum"`
- - `pathSep`: e.g. `"/"`
-
+  - default: data is already in hierarchical form, i.e. data is an object representing the root node
+  - if `pathSep` is specified: data is tabular, with `nameField` defining a path, delimited by `pathField`
+  - else if `parentFiled` is specified: data is tabular, with `parentField` defining the parent of `nameField`
+  
 ### Partition and Icicle (vertical partition)
 Based on Mike Bostock's [Zoomable Icicle](https://bl.ocks.org/mbostock/1005873)
 
