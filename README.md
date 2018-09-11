@@ -28,7 +28,8 @@ If you use NPM, `npm install d3-hiervis`. Otherwise, download the [latest releas
 
 ## API Reference
 
-API DOCUMENTATION HERE. Use bold for symbols (such as constructor and method names) and italics for instances. See the other D3 modules for examples.
+TODO
+
 
 ## Options
 Data import:
