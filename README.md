@@ -19,7 +19,7 @@ d3.csv("https://raw.githubusercontent.com/fbreitwieser/d3-hiervis/master/data/d3
     chart = hiervis(d3.select("svg"), data, {nameField: "path", pathSep: "/", valueField: "size", stat: "sum"});
     chart.draw("sankey")
   });
-<script>
+</script>
 ```
 
 ## Installing
