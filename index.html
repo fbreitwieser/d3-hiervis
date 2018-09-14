@@ -119,7 +119,7 @@ Filter minimum value: <input type="number" name="filterMin" id="filterMinVal" on
   d3.csv("data/d3.csv").then(function(data) {
     tabulate1("#datatable1_container", data)
     chart = hiervis(d3.select("svg#h1"), data, { nameField: "path", pathSep: "/", valueField: "size", stat: "sum" });
-    chart.draw("vertical sankey");
+    chart.draw("sankey");
   });
 
   function uploadFiles(files) {

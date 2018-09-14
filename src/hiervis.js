@@ -2,11 +2,11 @@ function hiervis(svg, data, opts) {
     return new HierVis(svg, data, opts);
 };
 
-function makeid(n) {
+const makeid = function(n) {
     'use strict';
-    let text = "",
-        possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-        i = 0;
+    let text = "";
+    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let i = 0;
     for (i = 0; i < n; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
@@ -14,7 +14,7 @@ function makeid(n) {
 }
 
 
-function setData(data, opts) {
+const setData = function(data, opts) {
     'use strict';
     let root;
     if (opts.krakenFile) {
@@ -112,7 +112,7 @@ function setData(data, opts) {
         default: //identity by default
             // TODO: Is this necessary when valueField is 'value',
             //       or does d3.hierachy() copy it over?
-            root.each(function(node) { node.value = node.data[opts.valueField]; });
+            root.each(node => { node.value = node.data[opts.valueField] });
             root.value = d3.sum(root.children, d => d.value);
             break;
     }
@@ -207,14 +207,14 @@ class HierVis {
           val = 0;
       }
       
-      function updateParentsVal(parent, val) {
+      const updateParentsVal = function(parent, val) {
           parent.value -= val
           if (parent.parent) {
               updateParentsVal(parent.parent, val)
           }
       }
       
-      function filterMinRec(node, val, txt_regex) {
+      const filterMinRec = function(node, val, txt_regex) {
           if (node.children || node.children_sav) {
               if (!node.children_sav) {
                 node.children_sav = node.children;
@@ -345,7 +345,10 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       case "cluster":
         this.cluster();
         break;
-      //case sunburst:
+      case "cycle":
+        this.cycle();
+        break;
+      case "sunburst":
       default:
         this.sunburst();
         break;
@@ -353,6 +356,14 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     //if (!visualizations.indexOf(vis) >= 0) {
     //  console.log("Don't know visualization " + vis + " - showing Sankey");
     //}
+  }
+    
+  cycle() {
+      for (let i = 1; 1 < 1000; ++i) {
+          ["icicle", "treemap", "partition", "sankey", "cluster", "sunburst", "vertical sankey"].forEach(vis1 => {
+              setTimeout(() => draw(vis1), 1000)
+          })
+      }
   }
 
   pack() {
@@ -410,7 +421,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     let nodes;
       
     // pads Sankey nodes - expects global 'max_dy1' and 'max_fact' variables
-    function padNodes(d, delta, y0, y1) {
+    const padNodes = function(d, delta, y0, y1) {
               const y1_b4 = d[y1];
               if (d.children) {
                   const delta_start = delta;
@@ -694,7 +705,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         .append('title')
         .text(d => d.data[this.opts.nameField] + '\n' + this.formatNumber(d.value));
 
-    function clicked(d) {
+    const clicked = function(d) {
       if (horizontal) {
         let min_x = d.depth? self.width / 10 : 0;
         if (d.parent && d[x0] - d.parent[x0] < min_x) {
@@ -764,17 +775,14 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     const link = cluster.selectAll(".link")
                    .data(this.root.descendants().slice(1))
                    .enter().append("path").attr("class", "link")
-                   .attr("d", function(d) {
-                       return "M" + d.y + "," + d.x +
-                              "C" + (d.parent.y + 100) + "," + d.x +
-                              " " + (d.parent.y + 100) + "," + d.parent.x +
-                              " " + d.parent.y + "," + d.parent.x;
-                   });
+                   .attr("d", d =>
+                       `M${d.y},${d.x}C${d.parent.y + 100},${d.x} ${d.parent.y + 100},${d.parent.x} ${d.parent.y},${d.parent.x}`
+                   );
     const node = cluster.selectAll(".node")
                    .data(this.root.descendants())
                    .enter().append("g")
-                   .attr("class", function(d) { return "node " + (d.children? "node--internal" : "node--leaf"); })
-                   .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                   .attr("class", d => "node " + (d.children? "node--internal" : "node--leaf"))
+                   .attr("transform", d => "translate(" + d.y + "," + d.x + ")" )
 
     node.append("circle").attr("r", 2.5);
     node.append("text")
@@ -863,7 +871,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       text
         //.attr("clip-path", (_, i) => "url(#clip-" + i + self.ID + ")")
         // clip-path doesn't work
-        .attr("transform", function(d) {
+        .attr("transform", (d) => {
           const angle = (x(d.x0) + x(d.x1))*90/Math.PI - 90
           const res= "translate("+arc.centroid(d)+")rotate("+ ((angle > 90 || angle < -90)? angle - 180 : angle) +")"
           return res;
@@ -885,7 +893,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     }
 
 
-    function sankeyClicked(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
+    const sankeyClicked = function(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
         // Reset to top-level if no data point specified
       if (!d.children)
         return;
@@ -906,9 +914,9 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
       moveStackToFront(d);
 
 
-      function moveStackToFront(elD) {
+      const moveStackToFront = function(elD) {
         self.svg.selectAll('.slice.' + self.ID).filter(d => d === elD)
-                               .each(function(d) {
+                               .each(d => {
                                  this.parentNode.appendChild(this);
                                  if (d.parent) { moveStackToFront(d.parent); }
                                })
