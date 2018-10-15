@@ -615,6 +615,59 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
               .attr("y", d => horizontal? Math.max(0, (self.height - y(d[y1]) + y(d[y0]))/2) : 0)
     }
     
+    const clicked = function(d) {
+      if (horizontal) {
+        let min_x = d.depth? self.width / 10 : 0;
+        if (d.parent && d[x0] - d.parent[x0] < min_x) {
+          min_x = d[x0] - d.parent[x0];
+        }
+
+        x.domain([d[x0], self.width]).range([min_x, self.width]);
+        if (is_sankey) {
+            y.domain([d.children_min_y0, d.children_max_y1])
+        } else {
+          y.domain([d[y0], d[y1]]);
+        }
+      } else {
+        let min_y = d.depth? self.height / 10 : 0;
+        if (d.parent && d[y0] - d.parent[y0] < min_y) {
+          min_y = d[y0] - d.parent[y0];
+        }
+
+        if (is_sankey && !horizontal) {
+            x.domain([d.children_min_y0, d.children_max_y1])
+        } else {
+            x.domain([d[x0], d[x1]]);
+        }
+        y.domain([d[y0], self.height]).range([min_y, self.height]);
+      }
+
+      if (is_sankey) {
+          clip_rect.transition()
+            .duration(self.opts.transitionDuration)
+             .call(sankey_clip_rects, x, y)
+
+          links.transition()
+                .duration(self.opts.transitionDuration)
+                .call(link_me, x, y)
+                .filter(d1 => d1.depth <= d.depth)
+                .attr("visibility", "hidden")
+      }
+
+       rect.transition()
+              .duration(self.opts.transitionDuration)
+              .call(rects, x, y)
+              .filter(d1 => d1 === d.parent).call(parent_rect, x, y)
+
+       text.transition()
+           .duration(self.opts.transitionDuration)
+           .call(set_texts, x, y)
+
+      if (self.opts.showNumbers)
+          tspan.transition()
+               .duration(self.opts.transitionDuration)
+               .call(set_tspans, x, y)
+    }
 
 
     // the objects containing the elements
@@ -706,59 +759,6 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         .append('title')
         .text(d => d.data[this.opts.nameField] + '\n' + this.formatNumber(d.value));
 
-    const clicked = function(d) {
-      if (horizontal) {
-        let min_x = d.depth? self.width / 10 : 0;
-        if (d.parent && d[x0] - d.parent[x0] < min_x) {
-          min_x = d[x0] - d.parent[x0];
-        }
-
-        x.domain([d[x0], self.width]).range([min_x, self.width]);
-        if (is_sankey) {
-            y.domain([d.children_min_y0, d.children_max_y1])
-        } else {
-          y.domain([d[y0], d[y1]]);
-        }
-      } else {
-        let min_y = d.depth? self.height / 10 : 0;
-        if (d.parent && d[y0] - d.parent[y0] < min_y) {
-          min_y = d[y0] - d.parent[y0];
-        }
-
-        if (is_sankey && !horizontal) {
-            x.domain([d.children_min_y0, d.children_max_y1])
-        } else {
-            x.domain([d[x0], d[x1]]);
-        }
-        y.domain([d[y0], self.height]).range([min_y, self.height]);
-      }
-
-      if (is_sankey) {
-          clip_rect.transition()
-            .duration(self.opts.transitionDuration)
-             .call(sankey_clip_rects, x, y)
-
-          links.transition()
-                .duration(self.opts.transitionDuration)
-                .call(link_me, x, y)
-                .filter(d1 => d1.depth <= d.depth)
-                .attr("visibility", "hidden")
-      }
-
-       rect.transition()
-              .duration(self.opts.transitionDuration)
-              .call(rects, x, y)
-              .filter(d1 => d1 === d.parent).call(parent_rect, x, y)
-
-       text.transition()
-           .duration(self.opts.transitionDuration)
-           .call(set_texts, x, y)
-
-      if (self.opts.showNumbers)
-          tspan.transition()
-               .duration(self.opts.transitionDuration)
-               .call(set_tspans, x, y)
-    }
   }
 
   tree() {
