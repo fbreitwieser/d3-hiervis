@@ -405,8 +405,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
 
   icicle(horizontal=false, is_treemap=false, is_sankey=false) {
     const self = this;
-    const sankeyNodeWidth = is_sankey && horizontal? 10 : 0;
-    const sankeyNodeHeight = is_sankey && !horizontal? 10 : 0;
+    const sankeyNodeSize = 10;
     const sankeyNodeDist = 2;
     const textPadding = 1;
 
@@ -555,8 +554,8 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
     const set_texts = function(selection, x, y) {
         if (is_sankey) {
              selection
-                 .attr("x", d => !horizontal? x((d[x0]+d[x1])/2)  : x(d[x0]) + sankeyNodeWidth + textPadding )
-                 .attr("y", d => horizontal? y((d[y0]+d[y1])/2) : y(d[y0]) + sankeyNodeHeight + textPadding)
+                 .attr("x", d => !horizontal? x((d[x0]+d[x1])/2)  : x(d[x0]) + sankeyNodeSize + textPadding )
+                 .attr("y", d => horizontal? y((d[y0]+d[y1])/2) : y(d[y0]) + sankeyNodeSize + textPadding)
         } else {
           selection
            .attr("x", d => x(d[x0]) + textPadding)
@@ -566,7 +565,7 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
 
     const set_tspans = function(selection, x, y) {
         if (is_sankey) {
-            selection.attr("x", d => !horizontal? x((d[x0]+d[x1])/2)  : x(d[x0]) + sankeyNodeWidth + textPadding )
+            selection.attr("x", d => !horizontal? x((d[x0]+d[x1])/2)  : x(d[x0]) + sankeyNodeSize + textPadding )
         } else {
             selection.attr("x", d => x(d[x0]) + textPadding )
         }
@@ -606,8 +605,8 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         selection.attr("x", d => x( d[x0] ))
             .attr("y", d => y( d[y0] ))
             .attr("visibility", null)
-            .attr("width", d => horizontal? sankeyNodeWidth : x(d[x1]) - x(d[x0]))
-            .attr("height", d => !horizontal? sankeyNodeHeight : y(d[y1]) - y(d[y0]))
+            .attr("width", d => horizontal? sankeyNodeSize : x(d[x1]) - x(d[x0]))
+            .attr("height", d => !horizontal? sankeyNodeSize : y(d[y1]) - y(d[y0]))
     }
 
     const parent_rect = function(selection, x, y) {
@@ -615,6 +614,8 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         selection.attr("x", d => !horizontal? Math.max(0, (self.width - x(d[x1]) + x(d[x0]))/2) : 0)
               .attr("y", d => horizontal? Math.max(0, (self.height - y(d[y1]) + y(d[y0]))/2) : 0)
     }
+    
+
 
     // the objects containing the elements
     let links, clip_rect, rect, text, tspan;
@@ -625,11 +626,11 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         .attr("visibility", null)
         .attr('d', d => {
          if (d.parent) {
-           return [ lh({source: [x(d.parent[x0]) + sankeyNodeWidth + 1, y(d.parent[y0] + d.sibling_y0s)],
+           return [ lh({source: [x(d.parent[x0]) + sankeyNodeSize + 1, y(d.parent[y0] + d.sibling_y0s)],
                         target: [x(d[x0]) - 1, y(d[y0])]}),
              [ x(d[x0]) - 1, y(d[y0] + d.h)],
              lh({ source: [ x(d[x0]) - 1, y(d[y0] + d.h) ],
-                  target: [ x(d.parent[x0]) + sankeyNodeWidth + 1,
+                  target: [ x(d.parent[x0]) + sankeyNodeSize + 1,
                             y(d.parent[y0] + d.sibling_y0s + d.h) ] }).slice(1)
             ].join(" L "); }})
     }
@@ -640,12 +641,12 @@ g.labels.sankey.horizontal text { /* dominant-baseline: middle; not working in S
         .attr("visibility", null)
         .attr('d', d => {
          if (d.parent) {
-           return [ lv({source: [ x(d.parent[x0] + d.sibling_x0s), y(d.parent[y0]) + sankeyNodeHeight + 1],
+           return [ lv({source: [ x(d.parent[x0] + d.sibling_x0s), y(d.parent[y0]) + sankeyNodeSize + 1],
                         target: [ x(d[x0]), y(d[y0]) - 1]}),
              [ x(d[x0] + d.w), y(d[y0]) - 1],
              lv({ source: [ x(d[x0] + d.w), y(d[y0]) -1 ],
                   target: [ x(d.parent[x0] + d.sibling_x0s + d.w),
-                            y(d.parent[y0]) + sankeyNodeHeight + 1 ] }).slice(1)
+                            y(d.parent[y0]) + sankeyNodeSize + 1 ] }).slice(1)
             ].join(" L ");}})
     }
 
